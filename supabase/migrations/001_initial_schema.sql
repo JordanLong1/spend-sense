@@ -217,12 +217,18 @@ CREATE POLICY "Members can read transactions"
 
 CREATE POLICY "Members can create transactions"
   ON public.transactions FOR INSERT
-  WITH CHECK (household_id = public.get_user_household_id());
+  WITH CHECK (
+    household_id = public.get_user_household_id()
+    AND user_id = auth.uid()
+  );
 
 CREATE POLICY "Members can update transactions"
   ON public.transactions FOR UPDATE
   USING (household_id = public.get_user_household_id())
-  WITH CHECK (household_id = public.get_user_household_id());
+  WITH CHECK (
+    household_id = public.get_user_household_id()
+    AND user_id = auth.uid()
+  );
 
 CREATE POLICY "Members can delete transactions"
   ON public.transactions FOR DELETE
