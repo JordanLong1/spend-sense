@@ -35,7 +35,7 @@ CREATE TABLE public.profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name text NOT NULL,
   avatar_url text,
-  household_id uuid REFERENCES public.households(id),
+  household_id uuid REFERENCES public.households(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
