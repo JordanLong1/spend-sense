@@ -1,9 +1,22 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { signOut } from "../features/auth/helpers/authApi";
 
 export function Layout() {
   const { profile } = useAuth();
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+
+  async function handleSignOut() {
+    try {
+      setSignOutError(null);
+      await signOut();
+    } catch (err) {
+      setSignOutError(
+        err instanceof Error ? err.message : "Failed to sign out",
+      );
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -16,8 +29,11 @@ export function Layout() {
                 {profile.display_name}
               </span>
             )}
+            {signOutError && (
+              <span className="text-sm text-red-600">{signOutError}</span>
+            )}
             <button
-              onClick={() => signOut()}
+              onClick={handleSignOut}
               className="text-sm text-gray-500 hover:text-gray-700"
             >
               Sign out
