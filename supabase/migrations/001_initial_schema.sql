@@ -48,7 +48,8 @@ CREATE TABLE public.categories (
   icon text,
   color text,
   is_default boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (id, household_id)
 );
 
 -- Transactions: the core table
@@ -72,12 +73,13 @@ CREATE TABLE public.transactions (
 CREATE TABLE public.budgets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   household_id uuid NOT NULL REFERENCES public.households(id) ON DELETE CASCADE,
-  category_id uuid NOT NULL REFERENCES public.categories(id) ON DELETE CASCADE,
+  category_id uuid NOT NULL,
   amount numeric(12,2) NOT NULL,
   month date NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (household_id, category_id, month)
+  UNIQUE (household_id, category_id, month),
+  FOREIGN KEY (category_id, household_id) REFERENCES public.categories(id, household_id) ON DELETE CASCADE
 );
 
 -- Recurring patterns: detected recurring transactions
@@ -285,6 +287,11 @@ DECLARE
   v_household public.households;
   v_user_id uuid := auth.uid();
 BEGIN
+  -- Guard against unauthenticated callers
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
   -- Check user doesn't already belong to a household
   IF (SELECT household_id FROM public.profiles WHERE id = v_user_id) IS NOT NULL THEN
     RAISE EXCEPTION 'User already belongs to a household';
@@ -328,6 +335,11 @@ DECLARE
   v_user_id uuid := auth.uid();
   v_member_count int;
 BEGIN
+  -- Guard against unauthenticated callers
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
   -- Check user doesn't already belong to a household
   IF (SELECT household_id FROM public.profiles WHERE id = v_user_id) IS NOT NULL THEN
     RAISE EXCEPTION 'User already belongs to a household';

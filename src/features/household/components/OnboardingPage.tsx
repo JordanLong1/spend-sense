@@ -6,6 +6,13 @@ import { createHousehold, joinHousehold } from "../helpers/householdApi";
 
 type Mode = "choose" | "create" | "join";
 
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message: unknown }).message);
+  }
+  return fallback;
+}
+
 export function OnboardingPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("choose");
@@ -39,9 +46,7 @@ export function OnboardingPage() {
       await refreshProfile();
       navigate("/");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create household",
-      );
+      setError(extractErrorMessage(err, "Failed to create household"));
     } finally {
       setIsSubmitting(false);
     }
@@ -57,9 +62,7 @@ export function OnboardingPage() {
       await refreshProfile();
       navigate("/");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to join household",
-      );
+      setError(extractErrorMessage(err, "Failed to join household"));
     } finally {
       setIsSubmitting(false);
     }
