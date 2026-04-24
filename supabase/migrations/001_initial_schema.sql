@@ -1,6 +1,9 @@
 -- Spend Sense: Initial Schema
 -- Run this in the Supabase SQL Editor
 
+-- Ensure gen_random_uuid() is available
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ============================================================================
 -- 1. HELPER FUNCTIONS
 -- ============================================================================
@@ -57,7 +60,7 @@ CREATE TABLE public.transactions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   household_id uuid NOT NULL REFERENCES public.households(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES public.profiles(id),
-  category_id uuid REFERENCES public.categories(id) ON DELETE SET NULL,
+  category_id uuid,
   amount numeric(12,2) NOT NULL,
   description text,
   merchant text,
@@ -66,7 +69,8 @@ CREATE TABLE public.transactions (
   source text NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'csv', 'ofx')),
   ai_categorized boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  FOREIGN KEY (category_id, household_id) REFERENCES public.categories(id, household_id) ON DELETE SET NULL
 );
 
 -- Budgets: per-category monthly budgets
