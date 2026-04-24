@@ -70,6 +70,8 @@ CREATE TABLE public.transactions (
   ai_categorized boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
+  -- Composite FK enforces category belongs to the same household.
+  -- NULL category_id is allowed (MATCH SIMPLE skips the check when any key column is NULL).
   FOREIGN KEY (category_id, household_id) REFERENCES public.categories(id, household_id) ON DELETE SET NULL
 );
 
