@@ -8,7 +8,7 @@ type Mode = "choose" | "create" | "join";
 
 function extractErrorMessage(err: unknown, fallback: string): string {
   if (typeof err === "object" && err !== null && "message" in err) {
-    return String((err as { message: unknown }).message);
+    return String(err.message);
   }
   return fallback;
 }
