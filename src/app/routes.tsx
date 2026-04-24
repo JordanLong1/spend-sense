@@ -19,19 +19,18 @@ export const router = createBrowserRouter([
       })),
   },
 
-  // Onboarding (authenticated, no household yet)
-  {
-    path: "/onboarding",
-    lazy: () =>
-      import("../features/household/components/OnboardingPage").then((m) => ({
-        Component: m.OnboardingPage,
-      })),
-  },
-
-  // Protected routes (authenticated + has household)
+  // Protected routes (authenticated)
   {
     element: <ProtectedRoute />,
     children: [
+      // Onboarding (authenticated, no household yet)
+      {
+        path: "/onboarding",
+        lazy: () =>
+          import("../features/household/components/OnboardingPage").then((m) => ({
+            Component: m.OnboardingPage,
+          })),
+      },
       {
         element: <Layout />,
         children: [
